@@ -239,6 +239,8 @@ let strLength: number = (someValue as string).length;
 * http://hacks.mozilla.or.kr/2016/03/es6-in-depth-let-and-const/
 
 
-
-
 ## Variable Declaration
+
+## 소스
+
+https://github.com/otawang/typescript-study-source/blob/master/src/chapter1/chapter1.ts
