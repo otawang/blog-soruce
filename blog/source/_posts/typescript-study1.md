@@ -241,6 +241,171 @@ let strLength: number = (someValue as string).length;
 
 ## Variable Declaration
 
+### Variable Declarations
+
+* ECMAscript 2015+부터 `let` 과 `const`를 이용해서 변수를 선언하는 방법이 새로 소개가 되었음
+* `let` 은 몇몇 개념 상으로 `var` 와 비슷하지만 몇몇 단점을 보완해서 나온 새로운 개념
+* `const`와 `let`의 차이는 재할당 가능 여부.`const`는 재할당이 불가능하지만, `let`은 재할당이 가능하다.
+* typescript에서도 `const`와 `let` 을 지원
+* 여기서는 우리가 `var`를 왜 쓰지 않아야 하는지에 대해서 좀 더 자세하게 설명
+
+
+### var
+
+* ECMAscript 5까지 사용했던 변수 선언 방법
+```typescript
+var a = 10;
+function f() {
+    var a= 10;
+    return function g() {
+        var b = a + 1;
+        return b;
+    }
+}
+
+var g = f();
+
+g();        //결과 값은 11
+
+function f2() {
+    var a = 1;
+
+    a = 2;
+
+    var b = g();
+    a = 3;
+
+    return b;
+
+    function g() {
+        return a;
+    }
+}
+
+f2();       //결과 값은 2
+```
+
+#### scope rules
+
+* `var`는 다른 언어들과 다른 특이한 scope를 가지고 있다(function scoping)
+
+```typescript
+function f(shouldInitialize: boolean) {
+    if (shouldInitialize) {
+        var x = 10;
+    }
+
+    return x;
+}
+
+f(true); // 10
+f(false); // undefined
+```
+
+* 이러한 scoping은 몇가지 문제를 야기 시킬 수 있다.
+    * 동일한 변수를 여러 번 선언하더라도 에러가 아님
+    * 변수 캡쳐 상의 문제
+    ```typescript
+    function sumMatrix(matrix: number[][]) {
+        var sum = 0;
+        for (var i = 0; i < matrix.length; i++) {
+            var currentRow = matrix[i];
+            for (var i = 0; i < currentRow.length; i++) {
+                sum += currentRow[i];
+            }
+        }
+
+        return sum;
+    }
+
+    for (var i = 0; i < 10; i++) {
+        setTimeout(function() { console.log(i); }, 100 * i);
+    }
+
+    //결과는 전부 10
+
+    for (var i = 0; i < 10; i++) {
+        (function(i) {
+            setTimeout(function() { console.log(i); }, 100 * i);
+        })(i);
+    }
+
+    // 이런식으로 해야 1,2,3,4,5,6,...
+    ```
+
+### let
+
+* var 선언 시 위와 같은 문제가 있을 수 있어서 scoping 전환이 필요
+
+```typescript
+let hello = 'hello!!!'; //사용하는 방법은 비슷
+```
+
+#### block-scoping
+
+* 일반적인 프로그램과 같은 block-scoping 을 가진다.
+
+```typescript
+function f(input: boolean) {
+    let a = 100;
+
+    if (input) {
+        let b = a + 1;
+        return b;
+    }
+
+    return b;   //Error
+}
+```
+
+* let은 var와 다르게 hoisting 이 발생하지 않는다.
+
+```typescript
+a++;    //error (temporal dead zone 이라고 함)
+let a;
+```
+
+#### Re-declarations and Shadowing
+
+* var의 경우는 여러 번 다시 선언해도 에러 없이 진행 이런 경우 잘못하면 버그를 발생할 여지가 많음.
+* let의 경우는 한번 이상 제 선언할 경우 에러 발생
+* Shadowing 은 중첩된 스코프에서 기존의 변수 이름을 사용하는 것
+```typescript
+function f(condition, x) {
+    if (condition) {
+        let x = 100;
+        return x;
+    }
+
+    return x;
+}
+
+function sumMatrix(matrix: number[][]) {
+    let sum = 0;
+    for (let i = 0; i < matrix.length; i++) {
+        var currentRow = matrix[i];
+        for (let i = 0; i < currentRow.length; i++) {
+            sum += currentRow[i];
+        }
+    }
+
+    return sum;
+}
+```
+* 하지만 명확한 코드를 위해서 하지 않는 것이 좋다.
+
+#### block-scoped variable capturing
+
+
+
+
+
+
+
+
+
+
+
 ## 소스
 
 https://github.com/otawang/typescript-study-source/blob/master/src/chapter1/chapter1.ts
