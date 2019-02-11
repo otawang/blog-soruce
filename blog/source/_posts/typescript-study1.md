@@ -396,6 +396,137 @@ function sumMatrix(matrix: number[][]) {
 
 #### block-scoped variable capturing
 
+* `let`, `const`의 경우는 block scoping 을 가지기 때문에 block 생성 시에 새로운 scope를 가진다.
+* `var` 같은 경우는 function scoping 이기 때문에 function 선언 시에 새로운 scope를 가지기 때문에 위에 발생한 문제를 해결하기 위해서 IIFE를 활용했다.
+* `let`, `const`는 IIFE(Immediately Invoked Function Expression[[링크]](https://developer.mozilla.org/ko/docs/Glossary/IIFE))를 활용하지 않더라고 아래와 같이 각 변수를 capturing 해서 사용할 수 있다.
+
+```typescript
+function theCityThatAlwaysSleeps() {
+    let getCity;
+
+    if (true) {
+        let city = "Seattle";
+        getCity = function() {
+            return city;
+        }
+    }
+
+    return getCity();
+}
+
+for (let i = 0; i < 10 ; i++) {
+    setTimeout(function() { console.log(i); }, 100 * i);
+}
+```
+
+### const
+
+* `let`과 거의 비슷하니 재활당이 되지 않는다.
+
+```typescript
+const numLivesForCat = 9;
+```
+
+* immutable과 햇깔릴 수 있으나 재할당이 안되는 것이지 object의 property 값을 추가하거나 변경하는 것은 가능하다.
+
+```typescript
+const numLivesForCat = 9;
+const kitty = {
+    name: "Aurora",
+    numLives: numLivesForCat,
+}
+
+// Error
+kitty = {
+    name: "Danielle",
+    numLives: numLivesForCat
+};
+
+// all "okay"
+kitty.name = "Rory";
+kitty.name = "Kitty";
+kitty.name = "Cat";
+kitty.numLives--;
+```
+
+* 타입 스크립트에서는 특정 프로퍼티를 readonly로 설정할 수 있는데, 이것은 다음 시간에..
+
+### let vs const
+
+* 될 수 있으면 `const` 를 활용
+* 재할당이 필요한 경우에만 `let`을 활용하자.
+* 변수 선언 시에 이게 재할당이 필요한지 아닌지 한번 고민해보는 습관을 가져보자
+
+### Destructuring
+
+* 지금 특징들은 ECMAscript 2015+ 이후에 사용가능한 것들
+```typescript
+
+let input = [1,2,3,4,5];
+
+let [a,b] = input;        //a=1, b=2;
+[a,b] = [b,a];              //변수 교환;
+let [c,...etc] = input;     //c=1, etc = [2,3,4,5]
+let [,d,e,,f] = input;      //d=2, e=3, f=5
+
+let o = {g:'foo', h:12, i:'bar'};
+
+let {g,h} = o;              //g='foo', h=12
+let {g, ...etc2} = o;       //g='foo', etc2={h:12, i:'bar'}
+let {g:g1, h:h1} = o;       //g1='foo', h1=12
+let {g, k=100} = o;         //g='foo', k=100 (기본값 설정)
+
+type C = { a: string, b?: number }
+function f({ a, b }: C): void {
+    // ...
+}
+
+function f({ a, b } = { a: "", b: 0 }): void {
+    // ...
+}
+f(); // 좋아요, 기본값 { a: "", b: 0 }
+
+function f({ a, b = 0 } = { a: "" }): void {
+    // ...
+}
+f({ a: "yes" }); // 좋아요, 기본값 b = 0
+f(); // 좋아요, 기본값은 { a:"" }이며 이 경우 기본값은 b = 0입니다.
+f({}); // 오류, 인수를 제공하려면 'a'가 필요합니다.
+```
+
+### Spread
+
+* 동일한 이름의 property인 경우 가장 오른 쪽 것으로 할당됨
+* 열거 가능한 property 값만 spread 가능(method는 불가)
+* 타입 스크립트 컴파일러의 경우 일반 함수의 매개변수를  spread 로 허용하지 않음(지원하는 것 같은데.. 어떤 경우인지 확인 필요)
+
+```typescript
+let first = [1, 2];
+let second = [3, 4];
+let bothPlus = [0, ...first, ...second, 5];
+
+let defaults = { food: "spicy", price: "$$", ambiance: "noisy" };
+let search = { ...defaults, food: "rich" };     //food: 'rich'
+
+let defaults = { food: "spicy", price: "$$", ambiance: "noisy" };
+let search = { food: "rich", ...defaults };     //food: 'spicy'
+
+class C {
+  p = 12;
+  m() {
+  }
+}
+
+let c = new C();
+let clone = { ...c };
+clone.p; // 12
+clone.m(); // 오류!
+
+
+
+```
+
+
 
 
 
@@ -409,3 +540,13 @@ function sumMatrix(matrix: number[][]) {
 ## 소스
 
 https://github.com/otawang/typescript-study-source/blob/master/src/chapter1/chapter1.ts
+
+
+## 참고자료
+
+https://poiemaweb.com/es6-block-scope
+https://www.typescriptlang.org/docs/handbook/variable-declarations.html
+https://www.typescriptlang.org/docs/handbook/basic-types.html
+
+https://typescript-kr.github.io/pages/Variable%20Declarations.html
+https://typescript-kr.github.io/pages/Basic%20Types.html
